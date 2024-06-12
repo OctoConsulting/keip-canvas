@@ -1,4 +1,4 @@
-package com.octo.keip.translate.model;
+package com.octo.keip.translate.model.eip;
 
 import java.util.List;
 import java.util.Map;

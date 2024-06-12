@@ -1,4 +1,4 @@
-package com.octo.keip.translate.model;
+package com.octo.keip.translate.model.eip;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +11,7 @@ public record EipNode(
     EipId eipId,
     String label,
     String description,
+    Role role,
     Map<String, Object> attributes,
     List<EipChild> children) {
   @Override

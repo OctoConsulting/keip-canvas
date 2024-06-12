@@ -2,6 +2,7 @@ package com.octo.keip.translate.dto
 
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import spock.lang.Specification
 
@@ -9,7 +10,7 @@ import java.nio.file.Path
 
 class SerializationTest extends Specification {
 
-    def mapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build()
+    def mapper = JsonMapper.builder().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS).disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build()
 
     def "Test Serialization"() {
         when:
