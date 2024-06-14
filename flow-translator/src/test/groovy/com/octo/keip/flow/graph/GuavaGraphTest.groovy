@@ -1,8 +1,8 @@
-package com.octo.keip.translate.graph
+package com.octo.keip.flow.graph
 
-import com.octo.keip.translate.dto.Flow
-import com.octo.keip.translate.dto.FlowEdge
-import com.octo.keip.translate.model.eip.EipNode
+import com.octo.keip.flow.dto.Flow
+import com.octo.keip.flow.dto.FlowEdge
+import com.octo.keip.flow.model.eip.EipNode
 import spock.lang.Specification
 
 import java.util.stream.Stream

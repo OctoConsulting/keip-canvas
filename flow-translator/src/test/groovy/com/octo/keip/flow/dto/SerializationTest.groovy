@@ -1,4 +1,4 @@
-package com.octo.keip.translate.dto
+package com.octo.keip.flow.dto
 
 
 import com.fasterxml.jackson.databind.DeserializationFeature

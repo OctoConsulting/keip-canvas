@@ -1,4 +1,4 @@
-package com.octo.keip.translate.graph;
+package com.octo.keip.flow.graph;
 
 import com.google.common.collect.Streams;
 import com.google.common.graph.GraphBuilder;
@@ -6,10 +6,10 @@ import com.google.common.graph.Graphs;
 import com.google.common.graph.ImmutableGraph;
 import com.google.common.graph.ImmutableGraph.Builder;
 import com.google.common.graph.Traverser;
-import com.octo.keip.translate.dto.Flow;
-import com.octo.keip.translate.dto.FlowEdge;
-import com.octo.keip.translate.model.eip.EipGraph;
-import com.octo.keip.translate.model.eip.EipNode;
+import com.octo.keip.flow.dto.Flow;
+import com.octo.keip.flow.dto.FlowEdge;
+import com.octo.keip.flow.model.eip.EipGraph;
+import com.octo.keip.flow.model.eip.EipNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.octo.keip.translate.model.eip;
+package com.octo.keip.flow.model.eip;
 
 import java.util.Set;
 import java.util.stream.Stream;

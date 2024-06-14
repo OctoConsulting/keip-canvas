@@ -1,4 +1,4 @@
-package com.octo.keip.translate.model.eip;
+package com.octo.keip.flow.model.eip;
 
 import java.util.List;
 import java.util.Map;
@@ -6,6 +6,8 @@ import java.util.Objects;
 
 // Represents a specific instantiation of an EIP component in the graph (e.g. a message filter or
 // router). Ids must be unique across the flow graph.
+
+// TODO: Are we going to need a builder?
 public record EipNode(
     String id,
     EipId eipId,
