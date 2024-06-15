@@ -1,5 +1,6 @@
 package com.octo.keip.flow.model.eip;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -8,6 +9,7 @@ import java.util.Objects;
 // router). Ids must be unique across the flow graph.
 
 // TODO: Are we going to need a builder?
+// TODO: Deserialize missing fields as empty containers rather than nulls
 public record EipNode(
     String id,
     EipId eipId,
@@ -16,6 +18,23 @@ public record EipNode(
     Role role,
     Map<String, Object> attributes,
     List<EipChild> children) {
+
+  @Override
+  public Map<String, Object> attributes() {
+    if (attributes == null) {
+      return Collections.emptyMap();
+    }
+    return attributes;
+  }
+
+  @Override
+  public List<EipChild> children() {
+    if (children == null) {
+      return Collections.emptyList();
+    }
+    return children;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
