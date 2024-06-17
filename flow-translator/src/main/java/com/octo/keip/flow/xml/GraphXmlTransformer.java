@@ -53,6 +53,7 @@ public class GraphXmlTransformer {
     StartElement root = createRootElement(graph);
     writer.add(root);
 
+    // TODO: Refactor. Ugly.
     graph
         .traverse()
         .forEach(

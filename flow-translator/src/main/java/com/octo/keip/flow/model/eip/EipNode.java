@@ -15,7 +15,9 @@ public record EipNode(
     EipId eipId,
     String label,
     String description,
+    // TODO: Should FlowType and Role be stored elsewhere and looked up with eipId
     Role role,
+    FlowType flowType,
     Map<String, Object> attributes,
     List<EipChild> children) {
 
@@ -24,7 +26,7 @@ public record EipNode(
     if (attributes == null) {
       return Collections.emptyMap();
     }
-    return attributes;
+    return Collections.unmodifiableMap(attributes);
   }
 
   @Override
@@ -32,7 +34,7 @@ public record EipNode(
     if (children == null) {
       return Collections.emptyList();
     }
-    return children;
+    return Collections.unmodifiableList(children);
   }
 
   @Override

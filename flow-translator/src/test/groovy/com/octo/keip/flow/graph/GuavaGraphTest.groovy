@@ -118,7 +118,7 @@ class GuavaGraphTest extends Specification {
 
     // TODO: Use Builder?
     private static EipNode newNode(String id) {
-        return new EipNode(id, null, null, null, null, null)
+        return new EipNode(id, null, null, null, null, null, null, null)
     }
 
     private static List<String> getIds(Stream<EipNode> nodes) {

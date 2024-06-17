@@ -39,7 +39,6 @@ class GraphXmlTransformerTest extends Specification {
 
         then:
         println formatXml(baos)
-
     }
 
     // TODO: remove

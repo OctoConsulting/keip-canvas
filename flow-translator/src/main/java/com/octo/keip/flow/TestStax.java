@@ -2,6 +2,7 @@ package com.octo.keip.flow;
 
 import com.octo.keip.flow.model.eip.EipId;
 import com.octo.keip.flow.model.eip.EipNode;
+import com.octo.keip.flow.model.eip.FlowType;
 import com.octo.keip.flow.model.eip.Role;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,6 +45,7 @@ public class TestStax {
             "testnode",
             null,
             Role.ENDPOINT,
+            FlowType.SOURCE,
             Map.of("attr1", "testval"),
             null);
 

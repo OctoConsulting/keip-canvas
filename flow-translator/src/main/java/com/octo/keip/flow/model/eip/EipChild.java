@@ -10,7 +10,7 @@ public record EipChild(String name, Map<String, Object> attributes, List<EipChil
     if (attributes == null) {
       return Collections.emptyMap();
     }
-    return attributes;
+    return Collections.unmodifiableMap(attributes);
   }
 
   @Override
@@ -18,6 +18,6 @@ public record EipChild(String name, Map<String, Object> attributes, List<EipChil
     if (children == null) {
       return Collections.emptyList();
     }
-    return children;
+    return Collections.unmodifiableList(children);
   }
 }
