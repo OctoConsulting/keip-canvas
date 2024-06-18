@@ -43,7 +43,8 @@ public class DefaultXmlTransformer implements NodeXmlTransformer {
 
   private XmlElement toXmlElement(
       EipNode node, Set<EipNode> predecessors, Set<EipNode> successors) {
-    List<XmlElement> children = node.children().stream().map(this::toXmlElement).toList();
+    List<XmlElement> children =
+        node.children().stream().map(c -> toXmlElement(c, node.eipId().namespace())).toList();
 
     Map<String, Object> updatedAttrs = new LinkedHashMap<>();
     updatedAttrs.put(ID, node.id());
@@ -54,9 +55,10 @@ public class DefaultXmlTransformer implements NodeXmlTransformer {
   }
 
   // TODO: Make EipChild and EipNode return empty containers rather than null
-  private XmlElement toXmlElement(EipChild child) {
-    List<XmlElement> children = child.children().stream().map(this::toXmlElement).toList();
-    return new XmlElement(null, child.name(), child.attributes(), children);
+  private XmlElement toXmlElement(EipChild child, String prefix) {
+    List<XmlElement> children =
+        child.children().stream().map(c -> this.toXmlElement(c, prefix)).toList();
+    return new XmlElement(prefix, child.name(), child.attributes(), children);
   }
 
   private void addChannelAttributes(
@@ -85,7 +87,10 @@ public class DefaultXmlTransformer implements NodeXmlTransformer {
 
     String channelId = getChannelId(node, successors.iterator().next());
     return new XmlElement(
-        DIRECT_CHANNEL.namespace(), DIRECT_CHANNEL.name(), Map.of(ID, channelId), Collections.emptyList());
+        DIRECT_CHANNEL.namespace(),
+        DIRECT_CHANNEL.name(),
+        Map.of(ID, channelId),
+        Collections.emptyList());
   }
 
   // TODO: This will likely be shared by multiple components

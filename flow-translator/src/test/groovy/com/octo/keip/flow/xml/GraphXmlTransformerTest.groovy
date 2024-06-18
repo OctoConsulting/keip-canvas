@@ -18,7 +18,6 @@ class GraphXmlTransformerTest extends Specification {
 
     private static final NAMESPACES = [
             "beans"      : "http://www.springframework.org/schema/beans",
-            "xsi"        : "http://www.w3.org/2001/XMLSchema-instance",
             "integration": "http://www.springframework.org/schema/integration",
             "jms"        : "http://www.springframework.org/schema/integration/jms"]
 
