@@ -1,18 +1,20 @@
 package com.octo.keip.flow.graph;
 
 import com.google.common.collect.Streams;
-import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.Graphs;
-import com.google.common.graph.ImmutableGraph;
-import com.google.common.graph.ImmutableGraph.Builder;
+import com.google.common.graph.ImmutableValueGraph;
+import com.google.common.graph.ImmutableValueGraph.Builder;
 import com.google.common.graph.Traverser;
+import com.google.common.graph.ValueGraphBuilder;
 import com.octo.keip.flow.dto.Flow;
 import com.octo.keip.flow.dto.FlowEdge;
-import com.octo.keip.flow.model.eip.EipGraph;
-import com.octo.keip.flow.model.eip.EipNode;
+import com.octo.keip.flow.model.EdgeProps;
+import com.octo.keip.flow.model.EipGraph;
+import com.octo.keip.flow.model.EipNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -20,10 +22,10 @@ import java.util.stream.Stream;
 @SuppressWarnings("UnstableApiUsage")
 public class GuavaGraph implements EipGraph {
 
-  private final ImmutableGraph<EipNode> graph;
+  private final ImmutableValueGraph<EipNode, EdgeProps> graph;
 
-  private GuavaGraph(ImmutableGraph<EipNode> graph) {
-    if (Graphs.hasCycle(graph)) {
+  private GuavaGraph(ImmutableValueGraph<EipNode, EdgeProps> graph) {
+    if (Graphs.hasCycle(graph.asGraph())) {
       throw new IllegalArgumentException("Graphs with cycles are not allowed");
     }
     this.graph = graph;
@@ -31,7 +33,7 @@ public class GuavaGraph implements EipGraph {
 
   public static GuavaGraph from(Flow flow) {
     Map<String, EipNode> visitedNodes = new HashMap<>();
-    Builder<EipNode> builder = GraphBuilder.directed().immutable();
+    Builder<EipNode, EdgeProps> builder = ValueGraphBuilder.directed().immutable();
     addNodes(flow.nodes(), builder, visitedNodes);
     addEdges(flow.edges(), builder, visitedNodes);
     return new GuavaGraph(builder.build());
@@ -54,13 +56,20 @@ public class GuavaGraph implements EipGraph {
     return this.graph.successors(node);
   }
 
+  @Override
+  public Optional<EdgeProps> getEdgeProps(EipNode source, EipNode target) {
+    return this.graph.edgeValue(source, target);
+  }
+
   /** Finds the nodes in the graph that have no incoming edges (indicating the start of a flow). */
   private Stream<EipNode> findRoots() {
     return graph.nodes().stream().filter(node -> graph.inDegree(node) == 0);
   }
 
   private static void addNodes(
-      List<EipNode> nodes, Builder<EipNode> builder, Map<String, EipNode> visitedNodes) {
+      List<EipNode> nodes,
+      ImmutableValueGraph.Builder<EipNode, EdgeProps> builder,
+      Map<String, EipNode> visitedNodes) {
     for (EipNode node : nodes) {
       if (visitedNodes.containsKey(node.id())) {
         throw new IllegalArgumentException(String.format("Duplicate node id: %s", node.id()));
@@ -71,14 +80,16 @@ public class GuavaGraph implements EipGraph {
   }
 
   private static void addEdges(
-      List<FlowEdge> edges, Builder<EipNode> builder, Map<String, EipNode> visitedNodes) {
+      List<FlowEdge> edges,
+      Builder<EipNode, EdgeProps> builder,
+      Map<String, EipNode> visitedNodes) {
     for (FlowEdge edge : edges) {
       EipNode source = visitedNodes.get(edge.source());
       EipNode target = visitedNodes.get(edge.target());
       if (source == null || target == null) {
         throw new IllegalArgumentException(String.format("A graph edge is detached: %s", edge));
       }
-      builder.putEdge(source, target);
+      builder.putEdgeValue(source, target, EdgeProps.from(edge));
     }
   }
 }

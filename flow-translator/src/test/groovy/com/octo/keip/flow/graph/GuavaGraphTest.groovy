@@ -2,7 +2,7 @@ package com.octo.keip.flow.graph
 
 import com.octo.keip.flow.dto.Flow
 import com.octo.keip.flow.dto.FlowEdge
-import com.octo.keip.flow.model.eip.EipNode
+import com.octo.keip.flow.model.EipNode
 import spock.lang.Specification
 
 import java.util.stream.Stream
@@ -23,7 +23,7 @@ class GuavaGraphTest extends Specification {
         def n1 = newNode("1")
         def n2 = newNode("2")
 
-        def e1 = new FlowEdge("a", sourceId, targetId)
+        def e1 = new FlowEdge("a", sourceId, targetId, null, null)
 
         def flow = new Flow([n1, n2], [e1])
 
@@ -68,9 +68,9 @@ class GuavaGraphTest extends Specification {
         def start2 = newNode("4")
         def end2 = newNode("5")
 
-        def edge1 = new FlowEdge("1", "1", "2")
-        def edge2 = new FlowEdge("2", "2", "3")
-        def edge3 = new FlowEdge("3", "4", "5")
+        def edge1 = new FlowEdge("1", "1", "2", null, null)
+        def edge2 = new FlowEdge("2", "2", "3", null, null)
+        def edge3 = new FlowEdge("3", "4", "5", null, null)
 
         def flow = new Flow([start1, middle1, end1, start2, end2], [edge1, edge2, edge3])
         def graph = GuavaGraph.from(flow)
@@ -103,9 +103,9 @@ class GuavaGraphTest extends Specification {
         def n2 = newNode("2")
         def n3 = newNode("3")
 
-        def e1 = new FlowEdge("a", "1", "2")
-        def e2 = new FlowEdge("b", "2", "3")
-        def e3 = new FlowEdge("c", "3", "1")
+        def e1 = new FlowEdge("a", "1", "2", null, null)
+        def e2 = new FlowEdge("b", "2", "3", null, null)
+        def e3 = new FlowEdge("c", "3", "1", null, null)
 
         def flow = new Flow([n1, n2, n3], [e1, e2, e3])
 

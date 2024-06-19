@@ -47,18 +47,18 @@ class GraphXmlTransformerTest extends Specification {
     }
 
     private static String formatXml(ByteArrayOutputStream byteStream) throws TransformerException {
-        var transformerFactory = TransformerFactory.newInstance();
-        var transformer = transformerFactory.newTransformer();
+        var transformerFactory = TransformerFactory.newInstance()
+        var transformer = transformerFactory.newTransformer()
 
         // pretty print by indention
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes")
         // add standalone="yes", add line break before the root element
-//        transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
+//        transformer.setOutputProperty(OutputKeys.STANDALONE, "yes")
 
-        var source = new StreamSource(new ByteArrayInputStream(byteStream.toByteArray()));
-        var result = new StringWriter();
-        transformer.transform(source, new StreamResult(result));
-        return result.toString();
+        var source = new StreamSource(new ByteArrayInputStream(byteStream.toByteArray()))
+        var result = new StringWriter()
+        transformer.transform(source, new StreamResult(result))
+        return result.toString()
     }
 
 }

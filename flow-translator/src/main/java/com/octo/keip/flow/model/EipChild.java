@@ -1,4 +1,4 @@
-package com.octo.keip.flow.model.eip;
+package com.octo.keip.flow.model;
 
 import java.util.Collections;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.octo.keip.flow.model.eip;
+package com.octo.keip.flow.model;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +17,7 @@ public record EipNode(
     String description,
     // TODO: Should FlowType and Role be stored elsewhere and looked up with eipId
     Role role,
-    FlowType flowType,
+    ConnectionType connectionType,
     Map<String, Object> attributes,
     List<EipChild> children) {
 

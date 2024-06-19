@@ -2,9 +2,9 @@ package com.octo.keip.flow.xml;
 
 import com.ctc.wstx.stax.WstxEventFactory;
 import com.ctc.wstx.stax.WstxOutputFactory;
-import com.octo.keip.flow.model.eip.EipGraph;
-import com.octo.keip.flow.model.eip.EipId;
-import com.octo.keip.flow.model.eip.EipNode;
+import com.octo.keip.flow.model.EipGraph;
+import com.octo.keip.flow.model.EipId;
+import com.octo.keip.flow.model.EipNode;
 import com.octo.keip.flow.xml.spring.DefaultXmlTransformer;
 import java.io.Writer;
 import java.net.URI;
@@ -137,8 +137,7 @@ public class GraphXmlTransformer {
       throws XMLStreamException {
     NodeXmlTransformer transformer =
         this.registeredNodeTransformers.getOrDefault(node.eipId(), this.defaultNodeTransformer);
-    List<XmlElement> elements =
-        transformer.apply(node, graph.predecessors(node), graph.successors(node));
+    List<XmlElement> elements = transformer.apply(node, graph);
     for (XmlElement element : elements) {
       writeElement(element, writer);
     }

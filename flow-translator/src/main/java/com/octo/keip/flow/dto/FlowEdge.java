@@ -1,3 +1,5 @@
 package com.octo.keip.flow.dto;
 
-public record FlowEdge(String id, String source, String target) {}
+// TODO: Builder
+public record FlowEdge(
+    String id, String source, String target, String sourceHandle, String targetHandle) {}

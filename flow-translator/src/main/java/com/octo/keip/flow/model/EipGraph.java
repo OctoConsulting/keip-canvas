@@ -1,5 +1,6 @@
-package com.octo.keip.flow.model.eip;
+package com.octo.keip.flow.model;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -9,4 +10,6 @@ public interface EipGraph {
   Set<EipNode> predecessors(EipNode node);
 
   Set<EipNode> successors(EipNode node);
+
+  Optional<EdgeProps> getEdgeProps(EipNode source, EipNode target);
 }
