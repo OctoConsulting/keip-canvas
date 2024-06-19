@@ -3,6 +3,7 @@ package com.octo.keip.flow.xml.spring;
 import com.octo.keip.flow.model.eip.EipChild;
 import com.octo.keip.flow.model.eip.EipId;
 import com.octo.keip.flow.model.eip.EipNode;
+import com.octo.keip.flow.model.eip.Role;
 import com.octo.keip.flow.xml.NodeXmlTransformer;
 import com.octo.keip.flow.xml.XmlElement;
 import java.util.ArrayList;
@@ -66,6 +67,9 @@ public class DefaultXmlTransformer implements NodeXmlTransformer {
       EipNode node,
       Set<EipNode> predecessors,
       Set<EipNode> successors) {
+    if (Role.CHANNEL.equals(node.role())) {
+      return;
+    }
 
     Optional<EipNode> predecessor = predecessors.stream().findFirst();
     Optional<EipNode> successor = successors.stream().findFirst();
@@ -81,7 +85,7 @@ public class DefaultXmlTransformer implements NodeXmlTransformer {
   }
 
   private XmlElement createDownstreamChannel(EipNode node, Set<EipNode> successors) {
-    if (successors.isEmpty()) {
+    if (successors.isEmpty() || Role.CHANNEL.equals(node.role())) {
       return null;
     }
 
@@ -95,6 +99,12 @@ public class DefaultXmlTransformer implements NodeXmlTransformer {
 
   // TODO: This will likely be shared by multiple components
   private String getChannelId(EipNode source, EipNode target) {
-    return source.id() + "-" + target.id();
+    if (Role.CHANNEL.equals(source.role())) {
+      return source.id();
+    } else if (Role.CHANNEL.equals(target.role())) {
+      return target.id();
+    } else {
+      return source.id() + "-" + target.id();
+    }
   }
 }
