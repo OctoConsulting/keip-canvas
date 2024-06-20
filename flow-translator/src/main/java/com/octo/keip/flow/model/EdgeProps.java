@@ -10,8 +10,6 @@ public record EdgeProps(String id, EdgeType type) {
   }
 
   public static EdgeProps from(FlowEdge edge) {
-    // TODO: Brittle
-    EdgeType type = ("discard".equals(edge.sourceHandle())) ? EdgeType.DISCARD : EdgeType.DEFAULT;
-    return new EdgeProps(edge.id(), type);
+    return new EdgeProps(edge.id(), edge.sourceHandle());
   }
 }

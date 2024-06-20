@@ -8,6 +8,7 @@ import spock.lang.Specification
 
 import java.nio.file.Path
 
+// TODO: Add more unit tests
 class SerializationTest extends Specification {
 
     def mapper = JsonMapper.builder().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS).disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build()
