@@ -3,12 +3,9 @@ package com.octo.keip.flow.xml;
 import com.ctc.wstx.stax.WstxEventFactory;
 import com.ctc.wstx.stax.WstxOutputFactory;
 import com.octo.keip.flow.model.EipGraph;
-import com.octo.keip.flow.model.EipId;
-import com.octo.keip.flow.model.EipNode;
-import com.octo.keip.flow.xml.spring.DefaultXmlTransformer;
+import com.octo.keip.flow.xml.spring.DefaultNodeTransformer;
 import java.io.Writer;
 import java.net.URI;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,22 +23,20 @@ import javax.xml.stream.events.StartElement;
 
 // TODO: EipNodeXmlTranslator registry
 // TODO: Support pretty-printing?
-public class GraphXmlTransformer {
+// TODO: Make abstract?
+public final class GraphXmlTransformer {
 
   private final XMLEventFactory eventFactory = WstxEventFactory.newFactory();
   private final XMLOutputFactory outputFactory = WstxOutputFactory.newFactory();
 
   private static final String XSI_PREFIX = "xsi";
 
-  // TODO: Make these configurable
-  private final NodeXmlTransformer defaultNodeTransformer = new DefaultXmlTransformer();
+  // TODO: Make these configurable (builder pattern maybe?)
   private static final String DEFAULT_NAMESPACE = "http://www.springframework.org/schema/beans";
   private static final URI BASE_SCHEMA_LOCATION =
       URI.create("https://www.springframework.org/schema/integration/");
 
   private final Map<String, String> mappedNamespaceUris;
-
-  private Map<EipId, NodeXmlTransformer> registeredNodeTransformers = Collections.emptyMap();
 
   public GraphXmlTransformer(Map<String, String> mappedNamespaceUris) {
     this.mappedNamespaceUris = mappedNamespaceUris;
@@ -50,6 +45,9 @@ public class GraphXmlTransformer {
   // TODO: Could potentially move Writer to ctor
   // TODO: Handle explicit connections to channel components
   public void toXml(EipGraph graph, Writer output) throws XMLStreamException {
+    NodeTransformerFactory transformerFactory = new NodeTransformerFactory(graph);
+    transformerFactory.setDefaultTransformer(DefaultNodeTransformer::new);
+
     // TODO: Set default namespace
     XMLEventWriter writer = outputFactory.createXMLEventWriter(output);
     writer.setDefaultNamespace(DEFAULT_NAMESPACE);
@@ -59,17 +57,7 @@ public class GraphXmlTransformer {
     StartElement root = createRootElement(graph);
     writer.add(root);
 
-    // TODO: Refactor. Ugly.
-    graph
-        .traverse()
-        .forEach(
-            node -> {
-              try {
-                writeNode(node, graph, writer);
-              } catch (XMLStreamException e) {
-                throw new RuntimeException(e);
-              }
-            });
+    writeNodes(graph, writer, transformerFactory);
 
     writer.add(eventFactory.createEndElement(root.getName(), null));
 
@@ -122,48 +110,54 @@ public class GraphXmlTransformer {
   }
 
   private Iterator<Namespace> getRootNamespaces(List<String> eipNamespaces) {
-    Namespace defaultNamespace = eventFactory.createNamespace(DEFAULT_NAMESPACE);
+    Namespace defaultNamespace = this.eventFactory.createNamespace(DEFAULT_NAMESPACE);
     Namespace xsiNamespace =
-        eventFactory.createNamespace(XSI_PREFIX, XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        this.eventFactory.createNamespace(XSI_PREFIX, XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
     Stream<Namespace> collectedNamespaces =
         eipNamespaces.stream()
-            .map(ns -> eventFactory.createNamespace(ns, this.mappedNamespaceUris.get(ns)));
+            .map(ns -> this.eventFactory.createNamespace(ns, this.mappedNamespaceUris.get(ns)));
 
     return Stream.concat(Stream.of(defaultNamespace, xsiNamespace), collectedNamespaces).iterator();
   }
 
-  // TODO: Assign a default node transformer
-  private void writeNode(EipNode node, EipGraph graph, XMLEventWriter writer)
-      throws XMLStreamException {
-    NodeXmlTransformer transformer =
-        this.registeredNodeTransformers.getOrDefault(node.eipId(), this.defaultNodeTransformer);
-    List<XmlElement> elements = transformer.apply(node, graph);
-    for (XmlElement element : elements) {
-      writeElement(element, writer);
-    }
+  private void writeNodes(EipGraph graph, XMLEventWriter writer, NodeTransformerFactory factory) {
+    graph
+        .traverse()
+        .forEach(
+            node -> {
+              NodeTransformer transformer = factory.getTransformer(node.eipId());
+              List<XmlElement> elements = transformer.apply(node);
+              elements.forEach(e -> writeElement(e, writer));
+            });
   }
 
-  private void writeElement(XmlElement element, XMLEventWriter writer) throws XMLStreamException {
-    writer.add(
-        eventFactory.createStartElement(
-            element.prefix(),
-            this.mappedNamespaceUris.get(element.prefix()),
-            element.localName(),
-            attributeIterator(element.attributes()),
-            null));
+  private void writeElement(XmlElement element, XMLEventWriter writer) {
+    try {
+      writer.add(
+          this.eventFactory.createStartElement(
+              element.prefix(),
+              this.mappedNamespaceUris.get(element.prefix()),
+              element.localName(),
+              attributeIterator(element.attributes()),
+              null));
 
-    for (XmlElement c : element.children()) {
-      writeElement(c, writer);
+      for (XmlElement c : element.children()) {
+        writeElement(c, writer);
+      }
+
+      writer.add(
+          this.eventFactory.createEndElement(
+              element.prefix(),
+              this.mappedNamespaceUris.get(element.prefix()),
+              element.localName()));
+    } catch (XMLStreamException e) {
+      throw new RuntimeException(e);
     }
-
-    writer.add(
-        eventFactory.createEndElement(
-            element.prefix(), this.mappedNamespaceUris.get(element.prefix()), element.localName()));
   }
 
   private Iterator<Attribute> attributeIterator(Map<String, Object> attributes) {
     return attributes.entrySet().stream()
-        .map(e -> eventFactory.createAttribute(e.getKey(), e.getValue().toString()))
+        .map(e -> this.eventFactory.createAttribute(e.getKey(), e.getValue().toString()))
         .iterator();
   }
 

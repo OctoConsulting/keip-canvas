@@ -9,7 +9,6 @@ import java.util.Objects;
 // router). Ids must be unique across the flow graph.
 
 // TODO: Are we going to need a builder?
-// TODO: Deserialize missing fields as empty containers rather than nulls
 public record EipNode(
     String id,
     EipId eipId,
