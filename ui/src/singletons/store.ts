@@ -1,6 +1,5 @@
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
-
 import { nanoid } from "nanoid/non-secure"
 import {
   Connection,
@@ -15,11 +14,15 @@ import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
+  Position,
 } from "reactflow"
 import { useShallow } from "zustand/react/shallow"
 import { AttributeTypes } from "../api/eipSchema"
 import { EIP_NODE_KEY, EipFlowNode } from "../api/flow"
 import { ChildNodeId, EipId, areChildIdsEqual } from "../api/id"
+import { Layout } from "../api/flow"
+import { newFlowLayout } from "../components/layout/layouting"
+
 
 export const ROOT_PARENT = "root"
 
@@ -64,6 +67,10 @@ interface AppActions {
   clearDiagramSelections: () => void
 
   importFlowFromJson: (json: string) => void
+
+  updateLayoutOrientation: (orientation: Layout["orientation"]) => void
+
+  updateLayoutDensity: () => void
 }
 
 interface AppStore {
@@ -71,7 +78,7 @@ interface AppStore {
   edges: Edge[]
   eipNodeConfigs: Record<string, EipNodeConfig>
   selectedChildNode: ChildNodeId | null
-
+  layout: Layout
   reactFlowActions: ReactFlowActions
   appActions: AppActions
 }
@@ -84,6 +91,10 @@ const useStore = create<AppStore>()(
       edges: [],
       eipNodeConfigs: {},
       selectedChildNode: null,
+      layout: {
+        orientation: "horizontal",
+        density: "cozy",
+      },
 
       reactFlowActions: {
         onNodesChange: (changes: NodeChange[]) =>
@@ -114,7 +125,7 @@ const useStore = create<AppStore>()(
       appActions: {
         createDroppedNode: (eipId, position) =>
           set((state) => {
-            const node = newNode(eipId, position)
+            const node = newNode(eipId, position, state.layout.orientation)
             return {
               nodes: [...state.nodes, node],
               eipNodeConfigs: {
@@ -195,6 +206,49 @@ const useStore = create<AppStore>()(
             console.error("Failed to import an EIP flow JSON. Malformed input")
             return {}
           }),
+
+        updateLayoutOrientation: (orientation: Layout["orientation"]) =>
+          set((state) => {
+            const newLayout: Layout = {
+              orientation: orientation,
+              density: state.layout.density,
+            }
+            const nodes = newFlowLayout(state.nodes, state.edges, newLayout)
+            return {
+              nodes: nodes,
+              layout: {
+                orientation: orientation,
+                density: state.layout.density,
+              },
+            }
+          }),
+
+        updateLayoutDensity: () =>
+          set((state) => {
+            const currentDensity = state.layout.density
+            let newDensity: Layout["density"] = "comfortable"
+
+            if (currentDensity === "compact") {
+              newDensity = "cozy"
+            } else if (currentDensity === "cozy") {
+              newDensity = "comfortable"
+            } else if (currentDensity === "comfortable") {
+              newDensity = "compact"
+            }
+
+            const newLayout: Layout = {
+              orientation: state.layout.orientation,
+              density: newDensity,
+            }
+            const nodes = newFlowLayout(state.nodes, state.edges, newLayout)
+            return {
+              nodes: nodes,
+              layout: {
+                orientation: state.layout.orientation,
+                density: newDensity,
+              },
+            }
+          }),
       },
     }),
     {
@@ -209,12 +263,19 @@ const useStore = create<AppStore>()(
   )
 )
 
-const newNode = (eipId: EipId, position: XYPosition) => {
+const newNode = (
+  eipId: EipId,
+  position: XYPosition,
+  orientation: Layout["orientation"]
+) => {
   const id = nanoid(10)
+  const isHorizontal = orientation === "horizontal"
   const node: EipFlowNode = {
     id: id,
     type: EIP_NODE_KEY,
     position: position,
+    targetPosition: isHorizontal ? Position.Left : Position.Top,
+    sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
     data: {
       eipId: eipId,
       label: "New Node",
@@ -249,6 +310,8 @@ const isStoreType = (state: unknown): state is AppStore => {
 export const useNodeCount = () => useStore((state) => state.nodes.length)
 
 export const useGetNodes = () => useStore((state) => state.nodes)
+
+export const useGetLayout = () => useStore((state) => state.layout)
 
 export const useSerializedStore = () =>
   useStore((state) =>
@@ -299,6 +362,7 @@ export const useFlowStore = () =>
     useShallow((state: AppStore) => ({
       nodes: state.nodes,
       edges: state.edges,
+      layout: state.layout,
       onNodesChange: state.reactFlowActions.onNodesChange,
       onEdgesChange: state.reactFlowActions.onEdgesChange,
       onConnect: state.reactFlowActions.onConnect,
@@ -312,3 +376,5 @@ export const getNodesView: () => Readonly<EipFlowNode[]> = () =>
   useStore.getState().nodes
 export const getEdgesView: () => Readonly<Edge[]> = () =>
   useStore.getState().edges
+export const getLayout: () => Readonly<Layout> = () =>
+  useStore.getState().layout
