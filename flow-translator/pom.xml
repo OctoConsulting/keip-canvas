@@ -11,5 +11,6 @@
 
     <modules>
         <module>flow-translator-lib</module>
+        <module>flow-translator-webapp</module>
     </modules>
 </project>

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: flow-translator-webapp
+
+# Actuator
+management:
+  endpoints:
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true
