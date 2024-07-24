@@ -1,13 +1,3 @@
-spring:
-  application:
-    name: flow-translator-webapp
-  jackson:
-    mapper:
-      accept-case-insensitive-enums: true
-    deserialization:
-      fail-on-unknown-properties: false
-
-
 server:
   http2:
     enabled: true
@@ -19,3 +9,21 @@ management:
   endpoint:
     health:
       enabled: true
+
+spring:
+  application:
+    name: flow-translator-webapp
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
+    deserialization:
+      fail-on-unknown-properties: false
+
+keip:
+  namespaces:
+    - eipNamespace: integration
+      xmlNamespace: http://www.springframework.org/schema/integration
+      schemaLocation: https://www.springframework.org/schema/integration/spring-integration.xsd
+    - eipNamespace: jms
+      xmlNamespace: http://www.springframework.org/schema/integration/jms
+      schemaLocation: https://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd

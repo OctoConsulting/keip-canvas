@@ -1,10 +1,11 @@
-package com.octo.keip.flow.web;
+package com.octo.keip.flow.web.translation;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
 import com.octo.keip.flow.dto.Flow;
 import javax.xml.transform.TransformerException;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/")
-class FlowTranslationEndpoint {
+class TranslationController {
 
-  private final FlowTranslationService flowTranslationService;
+  private final TranslationService flowTranslationService;
 
-  public FlowTranslationEndpoint(FlowTranslationService flowTranslationService) {
+  public TranslationController(TranslationService flowTranslationService) {
     this.flowTranslationService = flowTranslationService;
   }
 

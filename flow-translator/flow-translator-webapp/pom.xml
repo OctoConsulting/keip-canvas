@@ -41,6 +41,7 @@
         </dependency>
     </dependencies>
 
+    <!-- TODO: Add a docker jib build -->
     <build>
         <plugins>
             <plugin>
