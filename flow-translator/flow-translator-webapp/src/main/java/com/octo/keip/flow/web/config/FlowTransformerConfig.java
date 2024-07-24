@@ -16,6 +16,6 @@ public class FlowTransformerConfig {
 
   @Bean
   public FlowTransformer springIntegrationFlowTransformer() {
-    return new SpringIntegrationFlowTransformer(this.namespaceProps.namespaces());
+    return new SpringIntegrationFlowTransformer(this.namespaceProps.namespaceMappings());
   }
 }

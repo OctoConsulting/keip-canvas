@@ -20,7 +20,7 @@ spring:
       fail-on-unknown-properties: false
 
 keip:
-  namespaces:
+  namespaceMappings:
     - eipNamespace: integration
       xmlNamespace: http://www.springframework.org/schema/integration
       schemaLocation: https://www.springframework.org/schema/integration/spring-integration.xsd
