@@ -16,9 +16,13 @@ class TranslationService {
   }
 
   // TODO: Register an error handler
-  String toXml(Flow flow) throws TransformerException {
+  String toXml(Flow flow) {
     StringWriter output = new StringWriter();
-    this.flowTransformer.toXml(flow, output);
-    return output.toString();
+    try {
+      this.flowTransformer.toXml(flow, output);
+      return output.toString();
+    } catch (TransformerException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
