@@ -1,6 +1,16 @@
 spring:
   application:
     name: flow-translator-webapp
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
+    deserialization:
+      fail-on-unknown-properties: false
+
+
+server:
+  http2:
+    enabled: true
 
 # Actuator
 management:
