@@ -13,7 +13,7 @@ public record ApiError(String message, String type, List<Object> details) {
     return new ApiError(ex.getMessage(), getCause(ex), details);
   }
 
-  private static String getCause(Exception ex) {
+  public static String getCause(Exception ex) {
     return ex.getCause() == null ? "INTERNAL" : ex.getCause().getClass().getSimpleName();
   }
 }

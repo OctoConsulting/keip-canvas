@@ -1,8 +1,10 @@
 package com.octo.keip.flow.web.translation;
 
 import com.octo.keip.flow.FlowTransformer;
-import com.octo.keip.flow.dto.Flow;
+import com.octo.keip.flow.error.TransformationError;
+import com.octo.keip.flow.model.Flow;
 import java.io.StringWriter;
+import java.util.List;
 import javax.xml.transform.TransformerException;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +17,11 @@ class TranslationService {
     this.flowTransformer = flowTransformer;
   }
 
-  // TODO: Register an error handler
-  String toXml(Flow flow) {
+  TranslationResult toXml(Flow flow) {
     StringWriter output = new StringWriter();
     try {
-      this.flowTransformer.toXml(flow, output);
-      return output.toString();
+      List<TransformationError> errors = this.flowTransformer.toXml(flow, output);
+      return new TranslationResult(output.toString(), errors);
     } catch (TransformerException e) {
       throw new RuntimeException(e);
     }
