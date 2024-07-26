@@ -14,11 +14,13 @@ spring:
   application:
     name: flow-translator-webapp
   jackson:
+    default-property-inclusion: non_null
     mapper:
       accept-case-insensitive-enums: true
     deserialization:
       fail-on-unknown-properties: false
 
+# TODO: add more namespace mappings
 keip:
   namespaceMappings:
     - eipNamespace: integration

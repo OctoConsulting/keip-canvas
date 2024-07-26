@@ -1,6 +1,5 @@
 package com.octo.keip.flow.web.error;
 
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -25,7 +24,7 @@ public class GlobalExceptionHandler {
     return buildResponse(ApiError.of(ex), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  public ResponseEntity<Object> buildResponse(ApiError error, HttpStatus status) {
-    return ResponseEntity.status(status).body(Map.of("error", error));
+  public ResponseEntity<Object> buildResponse(ApiError<Object> error, HttpStatus status) {
+    return ResponseEntity.status(status).body(new DefaultErrorResponse(error));
   }
 }
