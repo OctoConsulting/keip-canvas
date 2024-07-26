@@ -10,6 +10,12 @@ management:
     health:
       enabled: true
 
+springdoc:
+  swagger-ui:
+    path: /doc
+  show-actuator: true
+  default-produces-media-type: application/json
+
 spring:
   application:
     name: flow-translator-webapp

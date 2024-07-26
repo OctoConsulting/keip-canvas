@@ -5,26 +5,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
-  public ResponseEntity<Object> malformedInput(HttpMessageNotReadableException ex) {
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ResponseEntity<DefaultErrorResponse> malformedInput(HttpMessageNotReadableException ex) {
     return buildResponse(ApiError.of(ex), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<Object> illegalArgument(IllegalArgumentException ex) {
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ResponseEntity<DefaultErrorResponse> illegalArgument(IllegalArgumentException ex) {
     return buildResponse(ApiError.of(ex), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<Object> defaultExceptionHandler(Exception ex) {
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public ResponseEntity<DefaultErrorResponse> defaultExceptionHandler(Exception ex) {
     return buildResponse(ApiError.of(ex), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  public ResponseEntity<Object> buildResponse(ApiError<Object> error, HttpStatus status) {
+  public ResponseEntity<DefaultErrorResponse> buildResponse(
+      ApiError<Object> error, HttpStatus status) {
     return ResponseEntity.status(status).body(new DefaultErrorResponse(error));
   }
 }

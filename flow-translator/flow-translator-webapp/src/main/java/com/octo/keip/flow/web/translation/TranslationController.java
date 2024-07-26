@@ -3,6 +3,7 @@ package com.octo.keip.flow.web.translation;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.octo.keip.flow.model.Flow;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,8 +22,9 @@ class TranslationController {
     this.flowTranslationService = flowTranslationService;
   }
 
+  @Operation(summary = "Translate an EIP flow json to a Spring Integration XML")
   @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-  ResponseEntity<Object> flowToXml(@RequestBody Flow eipFlow) {
+  ResponseEntity<TranslationResponse> flowToXml(@RequestBody Flow eipFlow) {
     TranslationResponse response = this.flowTranslationService.toXml(eipFlow);
     if (response.error() == null) {
       return ResponseEntity.ok(response);
