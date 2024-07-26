@@ -1,0 +1,33 @@
+{
+  "nodes": [
+    {
+      "id": "vX7zM31DRi",
+      "eipId": {
+        "namespace": "integration",
+        "name": "inbound-channel-adapter"
+      },
+      "role": "UNKNOWN",
+      "connectionType": "source"
+    },
+    {
+      "eipId": {
+        "id": "s5WQWIKq5Y",
+        "namespace": "jms",
+        "name": "outbound-channel-adapter"
+      },
+      "label": "Send To Broker",
+      "description": "Sends the message to a JMS message broker",
+      "role": "endpoint",
+      "connectionType": "sink"
+    }
+  ],
+  "edges": [
+    {
+      "source": "vX7zM31DRi",
+      "sourceHandle": null,
+      "target": "s5WQWIKq5Y",
+      "targetHandle": null,
+      "id": "edge-vX7zM31DRi-s5WQWIKq5Y"
+    }
+  ]
+}

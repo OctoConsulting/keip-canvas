@@ -1,11 +1,14 @@
 package com.octo.keip.flow.web.translation
 
 import com.fasterxml.jackson.databind.json.JsonMapper
+import com.octo.keip.flow.model.Flow
 import com.octo.keip.flow.web.error.ApiError
+import com.octo.keip.flow.web.error.DefaultErrorResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.http.HttpStatus
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
 import spock.lang.Specification
@@ -24,6 +27,8 @@ class TranslationControllerTest extends Specification {
 
     private static final JsonMapper MAPPER = JsonMapper.builder().build()
 
+    private static final String OUTPUT_XML = "<test>canned</test>"
+
     @Autowired
     MockMvc mvc
 
@@ -32,9 +37,9 @@ class TranslationControllerTest extends Specification {
 
     def "valid flow json to XML -> returns ok response with body"() {
         given:
-        def outputXml = "<test>canned</test>"
-        def translationResult = new TranslationResponse(outputXml, null)
-        translationService.toXml(_) >> translationResult
+        def translationResult = new TranslationResponse(OUTPUT_XML, null)
+        translationService.toXml(_ as Flow) >> translationResult
+
         expect:
         MvcResult mvcResult = mvc.perform(post("/")
                 .contentType(APPLICATION_JSON_VALUE)
@@ -48,11 +53,11 @@ class TranslationControllerTest extends Specification {
 
     def "flow json to XML with non-critical transformation errors -> returns error response with partial body"() {
         given:
-        def outputXml = "<test>canned</test>"
         def errDetails = new TranslationErrorDetail("node1", "unknown node")
         def err = ApiError.of(new TransformerException("unsupported node type"), [errDetails])
-        def translationResult = new TranslationResponse(outputXml, err)
-        translationService.toXml(_) >> translationResult
+        def translationResult = new TranslationResponse(OUTPUT_XML, err)
+        translationService.toXml(_ as Flow) >> translationResult
+
         expect:
         MvcResult mvcResult = mvc.perform(post("/")
                 .contentType(APPLICATION_JSON_VALUE)
@@ -64,20 +69,40 @@ class TranslationControllerTest extends Specification {
         verifyTranslationResult(mvcResult, translationResult)
     }
 
-    // TODO: Test different exception types
-    def "flow json to XML with fatal transformation errors -> returns error response with no body"() {
+    def "flow json to XML with fatal transformation errors -> returns error response with no body"(Exception ex, int httpStatusCode) {
         given:
-        Exception ex = new IllegalArgumentException("bad input")
-        translationService.toXml(_) >> { throw ex }
+        translationService.toXml(_ as Flow) >> { throw ex }
+
         expect:
         MvcResult mvcResult = mvc.perform(post("/")
                 .contentType(APPLICATION_JSON_VALUE)
                 .content(readFlowJson("sample-flow.json")))
-                                 .andExpect(status().isBadRequest())
+                                 .andExpect(status().is(httpStatusCode))
                                  .andExpect(content().contentType(APPLICATION_JSON_VALUE))
                                  .andReturn()
 
         verifyTranslationResult(mvcResult, new TranslationResponse(null, ApiError.of(ex)))
+
+        where:
+        ex                                        | httpStatusCode
+        new IllegalArgumentException("bad input") | HttpStatus.BAD_REQUEST.value()
+        new RuntimeException("unkown")            | HttpStatus.INTERNAL_SERVER_ERROR.value()
+    }
+
+    def "malformed flow json -> deserialization error -> returns error response with no body"() {
+        given:
+        def translationResult = new TranslationResponse(OUTPUT_XML, null)
+        translationService.toXml(_ as Flow) >> translationResult
+
+        expect:
+        MvcResult mvcResult = mvc.perform(post("/")
+                .contentType(APPLICATION_JSON_VALUE)
+                .content(readFlowJson("invalid-role-flow.json")))
+                                 .andExpect(status().isBadRequest())
+                                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                                 .andReturn()
+        // Verify expected API error format is returned
+        MAPPER.readValue(mvcResult.getResponse().getContentAsString(), DefaultErrorResponse.class)
     }
 
     static void verifyTranslationResult(MvcResult actual, Object expected) {
