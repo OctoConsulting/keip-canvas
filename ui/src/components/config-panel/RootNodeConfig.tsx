@@ -1,7 +1,7 @@
 import { Stack, TextArea, TextInput } from "@carbon/react"
 import { ChangeEvent, useMemo } from "react"
-import { Attribute, EipChildGroup } from "../../api/eipSchema"
 import { EipFlowNode } from "../../api/flow"
+import { Attribute, EipChildGroup } from "../../api/generated/eipComponentDef"
 import {
   ROOT_PARENT,
   useAppActions,

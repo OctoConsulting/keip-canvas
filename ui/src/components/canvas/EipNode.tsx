@@ -1,8 +1,8 @@
 import { Button, Stack, Tile } from "@carbon/react"
 import { ServiceId } from "@carbon/react/icons"
 import { Handle, NodeProps, Position } from "reactflow"
-import { ConnectionType, Role } from "../../api/eipSchema"
 import { EipNodeData, Layout } from "../../api/flow"
+import { ConnectionType, EipRole } from "../../api/generated/eipComponentDef"
 import { ChildNodeId, EipId } from "../../api/id"
 import { lookupEipComponent } from "../../singletons/eipDefinitions"
 import getIconUrl from "../../singletons/eipIconCatalog"
@@ -89,7 +89,7 @@ const getNamespacedTitle = (eipId: EipId) => {
   return toTitleCase(eipId.namespace) + " " + toTitleCase(eipId.name)
 }
 
-const getClassNames = (props: NodeProps<EipNodeData>, role: Role) => {
+const getClassNames = (props: NodeProps<EipNodeData>, role: EipRole) => {
   const roleClsName =
     role === "channel" ? "eip-channel-node" : "eip-endpoint-node"
   const selectedClsName = props.selected ? "eip-node-selected" : ""

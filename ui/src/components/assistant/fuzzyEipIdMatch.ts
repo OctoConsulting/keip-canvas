@@ -1,5 +1,5 @@
-import { EipComponent } from "../../api/eipSchema"
 import { EipFlowNode } from "../../api/flow"
+import { EipComponent } from "../../api/generated/eipComponentDef"
 import { EipId } from "../../api/id"
 import { EIP_SCHEMA, lookupEipComponent } from "../../singletons/eipDefinitions"
 

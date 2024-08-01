@@ -1,11 +1,15 @@
-import { EipComponent, EipSchema } from "../api/eipSchema"
+import {
+  EipComponent,
+  EipComponentDefinition,
+} from "../api/generated/eipComponentDef"
 import { EipId } from "../api/id"
 import eipDefintion from "../json/springIntegrationEipComponents.json"
 
 // TODO: Validate that the parsed JSON matches the schema type
-export const EIP_SCHEMA: Readonly<EipSchema> = eipDefintion as EipSchema
+export const EIP_SCHEMA: Readonly<EipComponentDefinition> =
+  eipDefintion as EipComponentDefinition
 
-const getFlatMap = (schema: EipSchema) => {
+const getFlatMap = (schema: EipComponentDefinition) => {
   const map = new Map<string, EipComponent>()
   for (const [namespace, componentList] of Object.entries(schema)) {
     componentList.forEach((c) => map.set(`${namespace}.${c.name}`, c))

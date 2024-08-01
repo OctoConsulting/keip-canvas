@@ -1,5 +1,5 @@
 import { Stack, TextArea } from "@carbon/react"
-import { Attribute } from "../../api/eipSchema"
+import { Attribute } from "../../api/generated/eipComponentDef"
 import { ChildNodeId } from "../../api/id"
 import { toTitleCase } from "../../utils/titleTransform"
 import AttributeConfigForm from "./AttributeConfigForm"

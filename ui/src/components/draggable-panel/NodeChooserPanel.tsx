@@ -8,7 +8,7 @@ import {
 
 import { useEffect, useState } from "react"
 import { DragPreviewImage, useDrag } from "react-dnd"
-import { EipComponent } from "../../api/eipSchema"
+import { EipComponent } from "../../api/generated/eipComponentDef"
 import { EipId } from "../../api/id"
 import { EIP_SCHEMA } from "../../singletons/eipDefinitions"
 import getIconUrl from "../../singletons/eipIconCatalog"

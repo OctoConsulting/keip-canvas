@@ -18,7 +18,7 @@ import {
   ReactSVGElement,
   useMemo,
 } from "react"
-import { Attribute } from "../../api/eipSchema"
+import { Attribute } from "../../api/generated/eipComponentDef"
 import { useAppActions, useGetEipAttribute } from "../../singletons/store"
 import debounce from "../../utils/debounce"
 
