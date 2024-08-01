@@ -17,6 +17,13 @@
 
     <properties>
         <java.version>21</java.version>
+
+        <docker.registry>ghcr.io/octoconsulting</docker.registry>
+        <image-name>keip-canvas/${project.artifactId}</image-name>
+        <container.source.label>https://github.com/OctoConsulting/keip-canvas</container.source.label>
+
+        <!-- skip deploying jar -->
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <dependencies>
@@ -73,12 +80,49 @@
 
     </dependencies>
 
-    <!-- TODO: Add a docker jib build -->
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.4.3</version>
+                <configuration>
+                    <container>
+                        <creationTime>${maven.build.timestamp}</creationTime>
+                        <labels>
+                            <org.opencontainers.image.source>
+                                ${container.source.label}
+                            </org.opencontainers.image.source>
+                        </labels>
+                    </container>
+                    <to>
+                        <image>${docker.registry}/${image-name}</image>
+                        <tags>
+                            <tag>${project.version}</tag>
+                        </tags>
+                    </to>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>dockerBuild</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>push-image</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
