@@ -3,3 +3,6 @@ dist
 
 // Ignore generated JSON files
 src/json/
+
+// Ignore generated source code
+**/generated
