@@ -17,7 +17,6 @@ dist-ssr
 tmp
 build/
 target/
-generated/
 
 # Editor directories and files
 **/.vscode/*

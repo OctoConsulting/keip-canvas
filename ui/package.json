@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "npm run codegen && tsc && vite build",
+    "build": "tsc && vite build",
     "check-format": "prettier --check ./src",
     "codegen": "node genApiFromSchema.js",
-    "dev": "npm run codegen && vite",
+    "dev": "vite",
     "format": "prettier --write ./src",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
