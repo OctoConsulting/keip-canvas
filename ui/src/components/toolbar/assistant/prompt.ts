@@ -1,6 +1,6 @@
 import { PipelinePromptTemplate, PromptTemplate } from "@langchain/core/prompts"
-import { EipId } from "../../api/id"
-import { EIP_SCHEMA } from "../../singletons/eipDefinitions"
+import { EipId } from "../../../api/id"
+import { EIP_SCHEMA } from "../../../singletons/eipDefinitions"
 
 const responseJsonExample = `{
     "nodes": [

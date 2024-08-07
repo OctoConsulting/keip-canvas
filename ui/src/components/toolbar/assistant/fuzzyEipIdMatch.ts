@@ -1,7 +1,7 @@
-import { EipFlowNode } from "../../api/flow"
-import { EipComponent } from "../../api/generated/eipComponentDef"
-import { EipId } from "../../api/id"
-import { EIP_SCHEMA, lookupEipComponent } from "../../singletons/eipDefinitions"
+import { EipFlowNode } from "../../../api/flow"
+import { EipComponent } from "../../../api/generated/eipComponentDef"
+import { EipId } from "../../../api/id"
+import { EIP_SCHEMA, lookupEipComponent } from "../../../singletons/eipDefinitions"
 
 /**
  * The purpose of this function is to relax matching for EipIds returned by the LLM.

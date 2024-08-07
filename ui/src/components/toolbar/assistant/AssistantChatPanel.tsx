@@ -4,16 +4,14 @@ import {
   IconButton,
   InlineLoading,
   Stack,
-  TableToolbar,
-  TableToolbarContent,
   TextArea,
   Tile,
 } from "@carbon/react"
-import { CloseOutline, MachineLearning, Send } from "@carbon/react/icons"
+import { CloseOutline, Send } from "@carbon/react/icons"
 import { interactive } from "@carbon/themes"
 import { forwardRef, useEffect, useRef, useState } from "react"
-import { useAppActions } from "../../singletons/store"
-import LlmClient from "./llmClient"
+import { useAppActions } from "../../../singletons/store"
+import { llmClientInstance as llmClient } from "./llmClient"
 
 type ChatEntrySource = "user" | "AI"
 
@@ -29,41 +27,6 @@ interface ChatHistoryProps {
 
 interface ChatInputProps {
   handleInput: (input: string) => Promise<void>
-}
-
-const llmClient = new LlmClient()
-
-const logKeipAssistantStatus = (available: boolean) => {
-  if (available) {
-    console.log(
-      `Enable Keip Assistant: An LLM server is available at ${llmClient.serverBaseUrl}`
-    )
-  } else {
-    console.log(
-      `Disable Keip Assistant: Did not find an LLM server at ${llmClient.serverBaseUrl}`
-    )
-  }
-}
-
-const useLlmServerStatus = () => {
-  const [isAvailable, setIsAvailable] = useState(false)
-
-  useEffect(() => {
-    let abortPing: () => void
-    void (async () => {
-      const result = llmClient.ping()
-      abortPing = result.abort
-      const success = await result.success
-      logKeipAssistantStatus(success)
-      setIsAvailable(success)
-    })()
-
-    return () => {
-      abortPing && abortPing()
-    }
-  }, [])
-
-  return isAvailable
 }
 
 const ChatInput = ({ handleInput }: ChatInputProps) => {
@@ -169,10 +132,8 @@ const AssistantChatPanel = () => {
   const chatHistoryEndRef = useRef<HTMLParagraphElement | null>(null)
   // TODO: Create a new action to set nodes/edges directly from object instead of JSON string.
   const { importFlowFromJson } = useAppActions()
-  const [isOpen, setOpen] = useState(false)
   const [chatEntries, setChatEntries] = useState<ChatEntry[]>([])
   const [streamingResponse, setStreamingResponse] = useState("")
-  const isLlmServerAvailable = useLlmServerStatus()
 
   const handleStreamUpdate = (chunk: string) =>
     setStreamingResponse((prev) => prev + chunk)
@@ -190,43 +151,20 @@ const AssistantChatPanel = () => {
     setStreamingResponse("")
   }
 
-  const display = isOpen ? { height: "30vh" } : { height: "2rem" }
-
   useEffect(() => {
     chatHistoryEndRef.current?.scrollIntoView()
   }, [streamingResponse])
 
-  // TODO: Can probably ditch Carbon's Toolbar
+  // TODO: Display an error pop-up if LLM prompt fails
   return (
-    <div className="chat-panel" style={display}>
-      <TableToolbar size="sm">
-        <TableToolbarContent className="chat-toolbar">
-          <IconButton
-            className="chat-toolbar-button"
-            label="Keip Assistant"
-            align="left"
-            kind="secondary"
-            size="lg"
-            onClick={() => setOpen((prev) => !prev)}
-            disabled={!isLlmServerAvailable}
-          >
-            <MachineLearning />
-          </IconButton>
-        </TableToolbarContent>
-      </TableToolbar>
-
-      {/* TODO: Display an error pop-up if LLM prompt fails  */}
-      {isOpen && (
-        <>
-          <ChatHistory
-            entries={chatEntries}
-            streamingResponse={streamingResponse}
-            ref={chatHistoryEndRef}
-          />
-          <ChatInput handleInput={sendPrompt} />
-        </>
-      )}
-    </div>
+    <>
+      <ChatHistory
+        entries={chatEntries}
+        streamingResponse={streamingResponse}
+        ref={chatHistoryEndRef}
+      />
+      <ChatInput handleInput={sendPrompt} />
+    </>
   )
 }
 

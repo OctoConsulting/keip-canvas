@@ -8,11 +8,11 @@ import {
 
 import "./styles.scss"
 
-import AssistantChatPanel from "./components/assistant/AssistantChatPanel"
 import FlowCanvas from "./components/canvas/FlowCanvas"
 import EipConfigSidePanel from "./components/config-panel/EipConfigSidePanel"
 import NodeChooserPanel from "./components/draggable-panel/NodeChooserPanel"
 import OptionsMenu from "./components/options-menu/OptionsMenu"
+import ToolbarMenu from "./components/toolbar/ToolbarMenu"
 
 const App = () => (
   <>
@@ -37,7 +37,7 @@ const App = () => (
       </Column>
 
       <Column span="100%">
-        <AssistantChatPanel />
+        <ToolbarMenu />
       </Column>
     </Grid>
 
