@@ -20,6 +20,7 @@
     "@carbon/react": "^1.51.1",
     "@dagrejs/dagre": "^1.1.2",
     "@types/carbon-components-react": "^7.55.10",
+    "highlight.js": "^11.10.0",
     "html-to-image": "^1.11.11",
     "langchain": "0.1.32",
     "nanoid": "^5.0.6",
@@ -27,6 +28,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
+    "react-simple-code-editor": "^0.14.1",
     "reactflow": "^11.10.4",
     "zustand": "^4.5.1"
   },

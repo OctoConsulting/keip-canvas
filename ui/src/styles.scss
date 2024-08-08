@@ -109,6 +109,14 @@
     align-items: flex-start;
   }
   //        End AI Chat Panel       //
+
+  //        Start XML Editor Panel       //
+  .xml-editor-container {
+    flex: 1;
+    @include type.type-style("code-02");
+  }
+
+  //        End XML Editor Panel       //
 }
 
 .node-chooser-panel {
