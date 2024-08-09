@@ -1,3 +1,9 @@
+import isDeepEqual from "fast-deep-equal"
+import { temporal } from "zundo"
+import { create } from "zustand"
+import { createJSONStorage, persist } from "zustand/middleware"
+import debounce from "../utils/debounce"
+
 import { nanoid } from "nanoid/non-secure"
 import {
   Connection,
@@ -8,14 +14,12 @@ import {
   OnConnect,
   OnEdgesChange,
   OnNodesChange,
+  Position,
   XYPosition,
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
-  Position,
 } from "reactflow"
-import { create } from "zustand"
-import { createJSONStorage, persist } from "zustand/middleware"
 import { useShallow } from "zustand/react/shallow"
 import { AttributeTypes } from "../api/eipSchema"
 import { EIP_NODE_KEY, EipFlowNode, Layout } from "../api/flow"
@@ -84,156 +88,193 @@ interface AppStore {
 // If app becomes too slow, might need to switch to async persistent storage.
 const useStore = create<AppStore>()(
   persist(
-    (set) => ({
-      nodes: [],
-      edges: [],
-      eipNodeConfigs: {},
-      selectedChildNode: null,
-      layout: {
-        orientation: "horizontal",
-        density: "comfortable",
-      },
+    temporal(
+      (set) => ({
+        nodes: [],
+        edges: [],
+        eipNodeConfigs: {},
+        selectedChildNode: null,
+        layout: {
+          orientation: "horizontal",
+          density: "comfortable",
+        },
 
-      reactFlowActions: {
-        onNodesChange: (changes: NodeChange[]) =>
-          set((state) => {
-            const updates: Partial<AppStore> = {
-              nodes: applyNodeChanges(changes, state.nodes),
-            }
-
-            const updatedEipConfigs = removeDeletedNodeConfigs(state, changes)
-            if (updatedEipConfigs) {
-              updates.eipNodeConfigs = updatedEipConfigs
-            }
-
-            return updates
-          }),
-
-        onEdgesChange: (changes: EdgeChange[]) =>
-          set((state) => ({
-            edges: applyEdgeChanges(changes, state.edges),
-          })),
-
-        onConnect: (connection: Connection) =>
-          set((state) => ({
-            edges: addEdge(connection, state.edges),
-          })),
-      },
-
-      appActions: {
-        createDroppedNode: (eipId, position) =>
-          set((state) => {
-            const node = newNode(eipId, position, state.layout.orientation)
-            return {
-              nodes: [...state.nodes, node],
-              eipNodeConfigs: {
-                ...state.eipNodeConfigs,
-                [node.id]: { attributes: {}, children: {} },
-              },
-            }
-          }),
-
-        updateNodeLabel: (id, label) =>
-          set((state) => ({
-            nodes: state.nodes.map((node) =>
-              node.id === id ? { ...node, data: { ...node.data, label } } : node
-            ),
-          })),
-
-        updateNodeDescription: (id, description) =>
-          set((state) => {
-            const configs = { ...state.eipNodeConfigs }
-            configs[id].description = description
-            return { eipNodeConfigs: configs }
-          }),
-
-        updateEipAttribute: (id, parentId, attrName, value) =>
-          set((state) => {
-            const configs = { ...state.eipNodeConfigs }
-            if (parentId === ROOT_PARENT) {
-              configs[id].attributes[attrName] = value
-            } else {
-              configs[parentId].children[id][attrName] = value
-            }
-            return { eipNodeConfigs: configs }
-          }),
-
-        updateEnabledChildren: (nodeId, children) =>
-          set((state) => {
-            const configs = { ...state.eipNodeConfigs }
-            configs[nodeId].children = children.reduce(
-              (accum, child) => {
-                accum[child] = {}
-                return accum
-              },
-              {} as Record<string, AttributeMapping>
-            )
-
-            return { eipNodeConfigs: configs }
-          }),
-
-        updateSelectedChildNode: (childId) =>
-          set(() => ({ selectedChildNode: childId })),
-
-        clearSelectedChildNode: () => set(() => ({ selectedChildNode: null })),
-
-        clearFlow: () =>
-          set(() => ({
-            nodes: [],
-            edges: [],
-            eipNodeConfigs: {},
-            selectedChildNode: null,
-          })),
-
-        clearDiagramSelections: () =>
-          set((state) => ({
-            nodes: state.nodes.map((node) => ({ ...node, selected: false })),
-            edges: state.edges.map((edge) => ({ ...edge, selected: false })),
-          })),
-
-        importFlowFromJson: (json: string) =>
-          set(() => {
-            const imported = JSON.parse(json) as Partial<AppStore>
-            if (isStoreType(imported)) {
-              return {
-                nodes: imported.nodes,
-                edges: imported.edges,
-                eipNodeConfigs: imported.eipNodeConfigs,
+        reactFlowActions: {
+          onNodesChange: (changes: NodeChange[]) =>
+            set((state) => {
+              const updates: Partial<AppStore> = {
+                nodes: applyNodeChanges(changes, state.nodes),
               }
-            }
-            console.error("Failed to import an EIP flow JSON. Malformed input")
-            return {}
-          }),
 
-        updateLayoutOrientation: (orientation: Layout["orientation"]) =>
-          set((state) => {
-            const newLayout: Layout = {
-              ...state.layout,
-              orientation: orientation,
-            }
-            const nodes = newFlowLayout(state.nodes, state.edges, newLayout)
-            return {
-              nodes: nodes,
-              layout: newLayout,
-            }
-          }),
+              const updatedEipConfigs = removeDeletedNodeConfigs(state, changes)
+              if (updatedEipConfigs) {
+                updates.eipNodeConfigs = updatedEipConfigs
+              }
 
-        updateLayoutDensity: () =>
-          set((state) => {
-            const newDensity =
-              state.layout.density === "compact" ? "comfortable" : "compact"
-            const newLayout: Layout = {
-              ...state.layout,
-              density: newDensity,
-            }
-            const nodes = newFlowLayout(state.nodes, state.edges, newLayout)
-            return {
-              nodes: nodes,
-              layout: newLayout,
-            }
-          }),
-      },
-    }),
+              return updates
+            }),
+
+          onEdgesChange: (changes: EdgeChange[]) =>
+            set((state) => ({
+              edges: applyEdgeChanges(changes, state.edges),
+            })),
+
+          onConnect: (connection: Connection) =>
+            set((state) => ({
+              edges: addEdge(connection, state.edges),
+            })),
+        },
+
+        appActions: {
+          createDroppedNode: (eipId, position) =>
+            set((state) => {
+              const node = newNode(eipId, position, state.layout.orientation)
+              return {
+                nodes: [...state.nodes, node],
+                eipNodeConfigs: {
+                  ...state.eipNodeConfigs,
+                  [node.id]: { attributes: {}, children: {} },
+                },
+              }
+            }),
+
+          updateNodeLabel: (id, label) =>
+            set((state) => ({
+              nodes: state.nodes.map((node) =>
+                node.id === id
+                  ? { ...node, data: { ...node.data, label } }
+                  : node
+              ),
+            })),
+
+          updateNodeDescription: (id, description) =>
+            set((state) => {
+              const configs = { ...state.eipNodeConfigs }
+              configs[id].description = description
+              return { eipNodeConfigs: configs }
+            }),
+
+          updateEipAttribute: (id, parentId, attrName, value) =>
+            set((state) => {
+              const configs = { ...state.eipNodeConfigs }
+              if (parentId === ROOT_PARENT) {
+                configs[id].attributes[attrName] = value
+              } else {
+                configs[parentId].children[id][attrName] = value
+              }
+              return { eipNodeConfigs: configs }
+            }),
+
+          updateEnabledChildren: (nodeId, children) =>
+            set((state) => {
+              const configs = { ...state.eipNodeConfigs }
+              configs[nodeId].children = children.reduce(
+                (accum, child) => {
+                  accum[child] = {}
+                  return accum
+                },
+                {} as Record<string, AttributeMapping>
+              )
+
+              return { eipNodeConfigs: configs }
+            }),
+
+          updateSelectedChildNode: (childId) =>
+            set(() => ({ selectedChildNode: childId })),
+
+          clearSelectedChildNode: () =>
+            set(() => ({ selectedChildNode: null })),
+
+          clearFlow: () =>
+            set(() => ({
+              nodes: [],
+              edges: [],
+              eipNodeConfigs: {},
+              selectedChildNode: null,
+            })),
+
+          clearDiagramSelections: () =>
+            set((state) => ({
+              nodes: state.nodes.map((node) => ({ ...node, selected: false })),
+              edges: state.edges.map((edge) => ({ ...edge, selected: false })),
+            })),
+
+          importFlowFromJson: (json: string) =>
+            set(() => {
+              const imported = JSON.parse(json) as Partial<AppStore>
+              if (isStoreType(imported)) {
+                return {
+                  nodes: imported.nodes,
+                  edges: imported.edges,
+                  eipNodeConfigs: imported.eipNodeConfigs,
+                }
+              }
+              console.error(
+                "Failed to import an EIP flow JSON. Malformed input"
+              )
+              return {}
+            }),
+
+          updateLayoutOrientation: (orientation: Layout["orientation"]) =>
+            set((state) => {
+              const newLayout: Layout = {
+                ...state.layout,
+                orientation: orientation,
+              }
+              const nodes = newFlowLayout(state.nodes, state.edges, newLayout)
+              return {
+                nodes: nodes,
+                layout: newLayout,
+              }
+            }),
+
+          updateLayoutDensity: () =>
+            set((state) => {
+              const newDensity =
+                state.layout.density === "compact" ? "comfortable" : "compact"
+              const newLayout: Layout = {
+                ...state.layout,
+                density: newDensity,
+              }
+              const nodes = newFlowLayout(state.nodes, state.edges, newLayout)
+              return {
+                nodes: nodes,
+                layout: newLayout,
+              }
+            }),
+        },
+      }),
+      {
+        limit: 50,
+
+        partialize: (state) => {
+          const newNodes = state.nodes.map((node) => {
+            const n = { ...node }
+            const {
+              width,
+              height,
+              selected,
+              draggable,
+              dragging,
+              positionAbsolute,
+              ...rest
+            } = n
+            return rest
+          })
+          const { edges } = state
+          const { layout } = state
+          const { eipNodeConfigs } = state
+
+          return { eipNodeConfigs, layout, edges, nodes: newNodes }
+        },
+
+        equality: (pastState, currentState) =>
+          isDeepEqual(pastState, currentState),
+
+        handleSet: (handleSet) =>
+          debounce((state) => handleSet(state), 1000, true),
+      }
+    ),
     {
       name: "eipFlow",
       version: 0,
@@ -245,6 +286,12 @@ const useStore = create<AppStore>()(
     }
   )
 )
+
+export const useUndoRedo = () =>
+  useStore(() => ({
+    undo: useStore.temporal.getState().undo,
+    redo: useStore.temporal.getState().redo,
+  }))
 
 const newNode = (
   eipId: EipId,
